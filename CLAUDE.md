@@ -8,7 +8,7 @@ Household management app. Phase 1: shared notes. Future: expenses, reminders, ca
 |-----------|-----------------------------------|
 | Backend   | Python 3.12, FastAPI, Poetry      |
 | Database  | PostgreSQL 16, SQLAlchemy 2, Alembic |
-| Frontend  | React 18, TypeScript, Vite        |
+| Frontend  | React Native, Expo (SDK 54), Expo Router, NativeWind |
 | Infra     | Docker Compose                    |
 
 ## Repo Layout
@@ -16,7 +16,7 @@ Household management app. Phase 1: shared notes. Future: expenses, reminders, ca
 ```
 househouldXpress/
 ├── backend/          # FastAPI app (Poetry project)
-├── frontend/         # React/TS/Vite app
+├── frontend/         # Expo / React Native app
 ├── .claude/plan/     # Agent planning docs
 │   ├── backend.md
 │   ├── frontend.md
@@ -30,8 +30,13 @@ househouldXpress/
 
 ```bash
 cp .env.example .env          # fill in secrets
-docker compose up --build     # starts db, api, frontend
+docker compose up --build     # starts db + api (no frontend service)
 docker compose exec api alembic upgrade head  # run migrations
+
+# Frontend (Expo — runs on host, not in Docker)
+cd frontend
+cp .env.example .env
+npx expo start                # scan QR with Expo Go on your iPhone
 ```
 
 ## Local Dev Setup
