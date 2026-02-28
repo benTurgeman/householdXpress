@@ -1,0 +1,20 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+dist/
+*.egg-info/
+
+# Node
+node_modules/
+frontend/dist/
+
+# Env / secrets
+.env
+*.env.local
+
+# macOS
+.DS_Store
+
+# Docker
+*.log
