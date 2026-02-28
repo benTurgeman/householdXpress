@@ -34,6 +34,13 @@ docker compose up --build     # starts db, api, frontend
 docker compose exec api alembic upgrade head  # run migrations
 ```
 
+## Local Dev Setup
+
+```bash
+cd backend && poetry install  # installs pre-commit among other dev deps
+poetry run pre-commit install  # activates git pre-commit hook
+```
+
 ## General Rules
 
 Always use the Context7 MCP when needing library/API documentation, code generation, or setup and configuration steps — do not wait to be asked explicitly.
