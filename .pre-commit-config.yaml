@@ -3,6 +3,7 @@ repos:
     hooks:
       - id: backend-ruff-lint
         name: ruff lint (backend)
+        stages: [pre-commit]
         language: system
         entry: bash -c 'cd backend && poetry run ruff check --fix .'
         pass_filenames: false
@@ -10,6 +11,7 @@ repos:
 
       - id: backend-ruff-format
         name: ruff format (backend)
+        stages: [pre-commit]
         language: system
         entry: bash -c 'cd backend && poetry run ruff format .'
         pass_filenames: false
@@ -17,13 +19,23 @@ repos:
 
       - id: backend-mypy
         name: mypy (backend)
+        stages: [pre-push]
         language: system
         entry: bash -c 'cd backend && poetry run mypy app/'
         pass_filenames: false
         files: ^backend/.*\.py$
 
+      - id: backend-pytest
+        name: pytest (backend)
+        stages: [pre-push]
+        language: system
+        entry: bash -c 'cd backend && DATABASE_URL=sqlite:///./test.db poetry run pytest'
+        pass_filenames: false
+        files: ^backend/.*\.py$
+
       - id: frontend-eslint
         name: eslint (frontend)
+        stages: [pre-commit]
         language: system
         entry: bash -c 'cd frontend && npm run lint'
         pass_filenames: false
@@ -31,6 +43,7 @@ repos:
 
       - id: frontend-type-check
         name: tsc (frontend)
+        stages: [pre-push]
         language: system
         entry: bash -c 'cd frontend && npm run type-check'
         pass_filenames: false

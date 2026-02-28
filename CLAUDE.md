@@ -43,7 +43,8 @@ npx expo start                # scan QR with Expo Go on your iPhone
 
 ```bash
 cd backend && poetry install  # installs pre-commit among other dev deps
-poetry run pre-commit install  # activates git pre-commit hook
+poetry run pre-commit install                        # commit hook
+poetry run pre-commit install --hook-type pre-push  # push hook
 ```
 
 ## General Rules
