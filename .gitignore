@@ -10,8 +10,9 @@ node_modules/
 frontend/dist/
 
 # Env / secrets
-.env
-*.env.local
+**/.env
+**/.env.*
+!**/.env.example
 
 # macOS
 .DS_Store
