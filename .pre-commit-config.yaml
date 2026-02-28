@@ -1,0 +1,30 @@
+repos:
+  - repo: local
+    hooks:
+      - id: backend-ruff-lint
+        name: ruff lint (backend)
+        language: system
+        entry: bash -c 'cd backend && poetry run ruff check --fix .'
+        pass_filenames: false
+        files: ^backend/.*\.py$
+
+      - id: backend-ruff-format
+        name: ruff format (backend)
+        language: system
+        entry: bash -c 'cd backend && poetry run ruff format .'
+        pass_filenames: false
+        files: ^backend/.*\.py$
+
+      - id: frontend-eslint
+        name: eslint (frontend)
+        language: system
+        entry: bash -c 'cd frontend && pnpm lint'
+        pass_filenames: false
+        files: ^frontend/src/.*\.[jt]sx?$
+
+      - id: frontend-type-check
+        name: tsc (frontend)
+        language: system
+        entry: bash -c 'cd frontend && pnpm type-check'
+        pass_filenames: false
+        files: ^frontend/.*\.tsx?$
