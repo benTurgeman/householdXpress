@@ -21,23 +21,14 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
-      CORS_ORIGINS: '["http://localhost:5173"]'
+      # Expo dev server runs on the host, not in Docker.
+      # Metro bundler uses port 8081; allow any localhost origin during development.
+      CORS_ORIGINS: '["http://localhost:8081", "http://localhost:19006", "exp://localhost:8081"]'
     ports:
       - "8000:8000"
     depends_on:
       db:
         condition: service_healthy
-
-  frontend:
-    build:
-      context: ./frontend
-    restart: unless-stopped
-    environment:
-      VITE_API_URL: http://localhost:8000
-    ports:
-      - "5173:5173"
-    depends_on:
-      - api
 
 volumes:
   pgdata:

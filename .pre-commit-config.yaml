@@ -15,16 +15,23 @@ repos:
         pass_filenames: false
         files: ^backend/.*\.py$
 
+      - id: backend-mypy
+        name: mypy (backend)
+        language: system
+        entry: bash -c 'cd backend && poetry run mypy app/'
+        pass_filenames: false
+        files: ^backend/.*\.py$
+
       - id: frontend-eslint
         name: eslint (frontend)
         language: system
-        entry: bash -c 'cd frontend && pnpm lint'
+        entry: bash -c 'cd frontend && npm run lint'
         pass_filenames: false
-        files: ^frontend/src/.*\.[jt]sx?$
+        files: ^frontend/(src|app)/.*\.[jt]sx?$
 
       - id: frontend-type-check
         name: tsc (frontend)
         language: system
-        entry: bash -c 'cd frontend && pnpm type-check'
+        entry: bash -c 'cd frontend && npm run type-check'
         pass_filenames: false
         files: ^frontend/.*\.tsx?$
