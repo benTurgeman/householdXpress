@@ -16,10 +16,10 @@ AuthorFilter = Annotated[AuthorEnum | None, Query()]
 
 
 @router.get("/", response_model=NoteListResponse)
-def list_notes(author: AuthorFilter = None, db: DbSession = ...) -> NoteListResponse:
+def list_notes(db: DbSession, author: AuthorFilter = None) -> NoteListResponse:
     stmt = select(Note).order_by(Note.created_at.desc())
     if author:
-        stmt = stmt.where(Note.author == author.value)
+        stmt = stmt.where(Note.author == author.value)  # type: ignore[arg-type]
     notes = db.scalars(stmt).all()
     return NoteListResponse(items=list(notes), total=len(notes))
 
