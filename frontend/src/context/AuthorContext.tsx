@@ -8,18 +8,21 @@ const STORAGE_KEY = 'hx_author';
 interface AuthorContextValue {
   author: Author | null;
   setAuthor: (a: Author) => void;
+  isHydrating: boolean;
 }
 
 const AuthorContext = createContext<AuthorContextValue | null>(null);
 
 export function AuthorProvider({ children }: { children: React.ReactNode }) {
   const [author, setAuthorState] = useState<Author | null>(null);
+  const [isHydrating, setIsHydrating] = useState(true);
 
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
       if (stored === 'Ben' || stored === 'Wife') {
         setAuthorState(stored);
       }
+      setIsHydrating(false);
     });
   }, []);
 
@@ -28,7 +31,11 @@ export function AuthorProvider({ children }: { children: React.ReactNode }) {
     AsyncStorage.setItem(STORAGE_KEY, a);
   }, []);
 
-  return <AuthorContext.Provider value={{ author, setAuthor }}>{children}</AuthorContext.Provider>;
+  return (
+    <AuthorContext.Provider value={{ author, setAuthor, isHydrating }}>
+      {children}
+    </AuthorContext.Provider>
+  );
 }
 
 export function useAuthor(): AuthorContextValue {

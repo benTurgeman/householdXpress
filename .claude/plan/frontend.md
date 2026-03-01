@@ -49,6 +49,7 @@ frontend/
 │   └── hooks/
 │       └── useNotes.ts         # List state + all mutations
 ├── global.css                  # Tailwind directives (NativeWind)
+├── nativewind-env.d.ts         # NativeWind v4 type shim (className props on RN components)
 ├── tailwind.config.js
 ├── babel.config.js
 ├── metro.config.js
@@ -138,13 +139,19 @@ No Redux or Zustand — local state + React Context only.
 interface AuthorContextValue {
   author: Author | null;
   setAuthor: (a: Author) => void;
+  isHydrating: boolean;
 }
 ```
 Reads/writes `AsyncStorage` key `hx_author`.
 
+`isHydrating` starts `true` and flips to `false` once the AsyncStorage read resolves. The root `_layout.tsx` should suppress navigation (or show a neutral splash) while `isHydrating` is `true` to prevent a flash of the author-gate screen on cold starts where the author is already set.
+
 ### Hook-level (`useNotes`)
 - `notes: Note[]`, `loading: boolean`, `error: string | null`
 - Exposes: `refresh()`, `createNote()`, `updateNote()`, `deleteNote()`
+
+### Filter state
+`filter: NoteFilter` lives as local `useState` in `app/notes/index.tsx` and is passed to `useNotes` as a parameter (or applied client-side to the returned list). It is not global — it resets on every visit to the list screen, which is the desired behaviour.
 
 ---
 
@@ -156,7 +163,7 @@ Reads/writes `AsyncStorage` key `hx_author`.
 | `/notes` | Notes list |
 | `/notes/[id]` | Note detail / edit |
 
-Navigation uses `useRouter().push('/notes/[id]')` and `router.back()`.
+Navigation uses `router.push(`/notes/${id}`)` (interpolated runtime URL) and `router.back()`. The bracket syntax `[id]` is a file-system convention only — never pass it as a literal string to `push`.
 
 ---
 
@@ -165,9 +172,73 @@ Navigation uses `useRouter().push('/notes/[id]')` and `router.back()`.
 NativeWind (Tailwind for React Native). Use `className` props everywhere.
 No StyleSheet API for layout — only use it for values NativeWind can't express.
 
+### Required setup files
+
+**`nativewind-env.d.ts`** — TypeScript shim so `className` is recognised on all React Native components:
+```ts
+/// <reference types="nativewind/types" />
+```
+
+**`global.css`** — must be imported in `app/_layout.tsx` for any Tailwind classes to apply:
+```ts
+// app/_layout.tsx
+import '../global.css';
+```
+
+**`tailwind.config.js`** — `content` must cover both route and source directories:
+```js
+module.exports = {
+  content: [
+    "./app/**/*.{js,jsx,ts,tsx}",
+    "./src/**/*.{js,jsx,ts,tsx}",
+  ],
+  presets: [require("nativewind/preset")],
+};
+```
+
+**`metro.config.js`** — `inlineRem: 16` ensures rem-based classes (e.g. `text-sm`, `p-4`) scale correctly on mobile:
+```js
+const { withNativeWind } = require("nativewind/metro");
+module.exports = withNativeWind(config, { input: "./global.css", inlineRem: 16 });
+```
+
 ---
 
-## 8. Environment / Config
+## 8. UI Components
+
+**Gluestack UI v3** is the selected component library.
+
+**Why:** Built on NativeWind — all styling uses `className`, the same as the rest of the app. One unified styling system, no parallel theme engine.
+
+**Setup:**
+```bash
+npx gluestack-ui@latest init
+```
+The CLI copies component source files into `components/ui/`. You own the code and can customise freely.
+
+**Key components available:** Button, Card, Input, Textarea, FormControl, Modal, Toast, Badge, Avatar, Spinner, HStack/VStack/Box, Select, Alert, Fab, Progress, and more.
+
+**Provider:** Wrap the root layout in `GluestackUIProvider`:
+```tsx
+// app/_layout.tsx
+import { GluestackUIProvider } from "@/components/ui/gluestack-ui-provider";
+
+export default function RootLayout() {
+  return (
+    <GluestackUIProvider mode="light">
+      <AuthorProvider>
+        <Stack />
+      </AuthorProvider>
+    </GluestackUIProvider>
+  );
+}
+```
+
+Dark mode is available via `mode="dark"` — trivially toggleable later.
+
+---
+
+## 9. Environment / Config
 
 ```
 # frontend/.env
@@ -179,7 +250,7 @@ EXPO_PUBLIC_API_URL=http://192.168.x.x:8000
 
 ---
 
-## 9. Verification
+## 10. Verification
 
 1. `cd frontend && npx expo start` — Metro starts, QR displayed
 2. Scan QR with Expo Go on iPhone — app loads

@@ -6,7 +6,10 @@ import { useAuthor } from '@/src/context/AuthorContext';
 import type { Author } from '@/src/types/notes';
 
 export default function IndexScreen() {
-  const { author, setAuthor } = useAuthor();
+  const { author, setAuthor, isHydrating } = useAuthor();
+
+  // Suppress navigation flash while AsyncStorage is loading
+  if (isHydrating) return null;
 
   // Once author is selected, go straight to notes
   if (author) {
